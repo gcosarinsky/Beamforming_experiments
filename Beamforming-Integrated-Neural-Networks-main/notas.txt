@@ -1,0 +1,21 @@
+7/5/2025
+
+Esta carpeta está copiada de: https://github.com/litmus-uwaterloo/Beamforming-Integrated-Neural-Networks
+
+Para generar la sparse matrix hice scripts creados con ayuda de chat gpt.
+La funcion gen_mat, traducida desde matlab, le tuve que hace unos retoques.
+Y la otriginal de matlab le tuve que cambiar esto:
+
+best_samp = max(min(fs*(total_time),Ns-1),1); % light error handling and conversion to samples
+
+por esto:
+
+best_samp = max(min(fs*(total_time),Ns-1),0) + 1; % light error handling and conversion to samples
+
+para que la compracion matlab vs python de un error pequeño
+
+comentario en script de matlab:
+% con esta modificación la diferencia con la matriz generada en
+% python es mínima. Si se usa la línea original, la diferencia
+% es enorme, pero el beamforming funciona igual. Debe ser un
+% problema de desfasaje de un indice.

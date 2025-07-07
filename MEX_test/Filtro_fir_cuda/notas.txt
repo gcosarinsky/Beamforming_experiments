@@ -1,0 +1,3 @@
+para poder compilar, con mexcuda, tude que instalar Visual Studio 2015 y Cudatoolkit 8
+El cudatoolkit 8 tuve que instalarlo en modo compatibilidad a Windows 8, y en la instalacion hubo unos errores. Le puse uq eno instale el display driver.
+Me amenzaba con una incompatibilidad con mi GPU, si no entendí mal

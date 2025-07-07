@@ -1,0 +1,2 @@
+1/7/2025
+En el ejemplo 1, el perfil de NSI y el de apodizacion constante dan iguales. Resulta que el perfil de haz con la apodizacion zero mean simetrica da con la misma fase que el de apodización constante...Parece ser que es necesaria la asimetría
