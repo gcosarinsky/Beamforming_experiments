@@ -15,7 +15,7 @@ import cupy as cp
 cfg = {
     'n_elementos': 128,
     'n_angles': 25,
-    'taps': 63,
+    'taps': 62,
     'fs': 62.5,
     'f1': 2,
     'f2': 8,
@@ -42,12 +42,13 @@ with open(code_file, encoding='utf-8') as f:
 # module = cp.RawModule(path=code_file)
 module = cp.RawModule(code=macros + '\n' + code)
 # filt_kernel_2 = module.get_function('_Z13filt_kernel_2PKsPKfPs')
-filt_kernel_2 = module.get_function('filt_kernel_2')
+filt_kernel_3 = module.get_function('filt_kernel_3')
 
 # Configurar grid y bloques
-grid_size = (1,
-             (cfg['n_elementos'] + 15) // 16)
-block_size = (cfg['n_angles'], 16)
+nblock = 128
+n_ascans = matrix.shape[0] * matrix.shape[1]
+grid_size = ((n_ascans + nblock - 1) // nblock, )
+block_size = (nblock, )
 
 # Memoria compartida
 # shared_mem = (cfg['taps'] + 1) * cp.dtype(cp.float32).itemsize
@@ -57,8 +58,8 @@ matrix_gpu = cp.asarray(matrix, dtype=cp.int16)
 matrix_filt = cp.zeros((cfg['n_elementos'], cfg['n_elementos'], cfg['n_samples']), dtype=cp.int16)
 matrix_imag = cp.zeros_like(matrix_filt)
 
-filt_kernel_2(grid_size, block_size, (matrix_gpu, bandpass_coef, matrix_filt)) #, shared_mem=shared_mem)
-filt_kernel_2(grid_size, block_size, (matrix_filt, hilb_coef, matrix_imag)) #, shared_mem=shared_mem)
+filt_kernel_3(grid_size, block_size, (matrix_gpu, bandpass_coef, matrix_filt)) #, shared_mem=shared_mem)
+filt_kernel_3(grid_size, block_size, (matrix_filt, hilb_coef, matrix_imag)) #, shared_mem=shared_mem)
 
 i = 0
 fig, ax = plt.subplots()
@@ -82,8 +83,8 @@ def fun(n=10):
 
         # Medir tiempo de ejecución de los kernels
         t0 = time.perf_counter()
-        filt_kernel_2(grid_size, block_size, (a, bandpass_coef, matrix_filt))
-        filt_kernel_2(grid_size, block_size, (matrix_filt, hilb_coef, matrix_imag))
+        filt_kernel_3(grid_size, block_size, (a, bandpass_coef, matrix_filt))
+        filt_kernel_3(grid_size, block_size, (matrix_filt, hilb_coef, matrix_imag))
         cp.cuda.runtime.deviceSynchronize()  # Sincronizar GPU
         t_filter.append(time.perf_counter() - t0)
 

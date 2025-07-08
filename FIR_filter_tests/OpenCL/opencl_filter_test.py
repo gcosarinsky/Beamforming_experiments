@@ -11,7 +11,7 @@ import FIR_filter_tests.hilbert_coef as hilb
 cfg = {
     'n_elementos': 128,
     'n_angles': 25,
-    'taps': 63,
+    'taps': 62,
     'fs': 62.5,
     'f1': 2,
     'f2': 8,

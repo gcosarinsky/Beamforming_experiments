@@ -18,19 +18,18 @@ __device__ float multisum(short *x, float *coef) {
 
 extern "C" {
 
-__global__ void filt_kernel_2(const short *datain, const float *coef_g, short *dataout) {
+__global__ void filt_kernel(const short *datain, const float *coef_g, short *dataout) {
     // Calcular índices globales del hilo
-    int e = blockIdx.x * blockDim.x + threadIdx.x;  // Índice de elemento
-    int r = blockIdx.y * blockDim.y + threadIdx.y;  // Índice de receptor
+    int tid = blockIdx.x * blockDim.x + threadIdx.x;  // Índice de thread
 
     // Verificar límites
-    if (e >= N_ELEMENTOS || r >= N_ELEMENTOS) return;
+    if (tid >= N_ELEMENTOS * N_SAMPLES) return;
 
     //extern __shared__ float coef[];
     float coef[TAPS + 1] ;
     short x[TAPS + 1];
     // Índice de primer sample del ascan en dataout
-    int i = N_ELEMENTOS * N_SAMPLES * e + N_SAMPLES * r;
+    int i = N_SAMPLES * tid;
 
     /* copiar coeficientes del filtro en memoria privada */
     unsigned short l0 = TAPS/2 ;
@@ -64,7 +63,6 @@ __global__ void filt_kernel_2(const short *datain, const float *coef_g, short *d
     dataout[i] = 0 ;
     dataout[i + N_SAMPLES - 2] = 0 ;
     dataout[i + N_SAMPLES - 1] = 0 ;
-
 }
 
 }
