@@ -50,15 +50,15 @@ grid_size = (1,
 block_size = (cfg['n_angles'], 16)
 
 # Memoria compartida
-shared_mem = (cfg['taps'] + 1) * cp.dtype(cp.float32).itemsize
+# shared_mem = (cfg['taps'] + 1) * cp.dtype(cp.float32).itemsize
 
 # Llamar al kernel
 matrix_gpu = cp.asarray(matrix, dtype=cp.int16)
 matrix_filt = cp.zeros((cfg['n_elementos'], cfg['n_elementos'], cfg['n_samples']), dtype=cp.int16)
 matrix_imag = cp.zeros_like(matrix_filt)
 
-filt_kernel_2(grid_size, block_size, (matrix_gpu, bandpass_coef, matrix_filt), shared_mem=shared_mem)
-filt_kernel_2(grid_size, block_size, (matrix_filt, hilb_coef, matrix_imag), shared_mem=shared_mem)
+filt_kernel_2(grid_size, block_size, (matrix_gpu, bandpass_coef, matrix_filt)) #, shared_mem=shared_mem)
+filt_kernel_2(grid_size, block_size, (matrix_filt, hilb_coef, matrix_imag)) #, shared_mem=shared_mem)
 
 i = 0
 fig, ax = plt.subplots()

@@ -10,6 +10,8 @@ __device__ float multisum(short *x, float *coef) {
     for (int j = 0; j < (TAPS + 1); j++) {
         q += coef[TAPS - j] * x[j];
     }
+    // Limitar el valor acumulado dentro del rango de un short
+    q = fmaxf(fminf(q, 32767.0f), -32768.0f);
     return q;
 }
 
@@ -24,21 +26,21 @@ __global__ void filt_kernel_2(const short *datain, const float *coef_g, short *d
     // Verificar límites
     if (e >= N_ELEMENTOS || r >= N_ELEMENTOS) return;
 
-    extern __shared__ float coef[];
+    //extern __shared__ float coef[];
+    float coef[TAPS + 1] ;
     short x[TAPS + 1];
-
-    // Copiar coeficientes a memoria compartida
-    for (int l = threadIdx.x; l <= TAPS; l += blockDim.x) {
-        coef[l] = coef_g[l];
-    }
-    __syncthreads();
-
     // Índice de primer sample del ascan en dataout
     int i = N_ELEMENTOS * N_SAMPLES * e + N_SAMPLES * r;
 
+    /* copiar coeficientes del filtro en memoria privada */
+    unsigned short l0 = TAPS/2 ;
+    unsigned short lmax = TAPS + 1 ;
+    for (unsigned short l=0; l < lmax; l++) {
+        coef[l] = coef_g[l] ;
+    }
+
     // Calcular transitorio
-    int l0 = TAPS / 2;
-    for (int l = 0; l <= l0; l++) {
+    for (unsigned short l = 0; l <= l0; l++) {
         x[l + l0] = datain[i + l];
     }
 
@@ -46,8 +48,8 @@ __global__ void filt_kernel_2(const short *datain, const float *coef_g, short *d
     dataout[i] = (short)rintf(multisum(x, coef));
 
     // Continuar hasta traer la última muestra del A-scan
-    int lmax = N_SAMPLES - l0;
-    for (int l = 1; l < lmax; l++) {
+    lmax = N_SAMPLES - l0;
+    for (unsigned short l = 1; l < lmax; l++) {
         shift_izq(x);
         x[TAPS] = datain[i + l + l0];
         dataout[i + l] = (short)rintf(multisum(x, coef));
