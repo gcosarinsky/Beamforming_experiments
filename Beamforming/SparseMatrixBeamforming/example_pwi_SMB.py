@@ -51,7 +51,7 @@ def return_pw_tf_beamformer(cfg):
 if __name__ == '__main__':
 
     # load acquisition
-    data_path = r'/MUST/matlab/pruebas/pwi_acq_25angles.mat'
+    data_path = r'../../MUST/matlab/pruebas/pwi_acq_25angles.mat'
     data = scipy.io.loadmat(data_path)
     matrix = np.ascontiguousarray(data['a'].T, dtype=np.int16)
     angles = data['angles'].flatten()

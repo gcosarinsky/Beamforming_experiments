@@ -41,9 +41,9 @@ n_burst = rf.shape[0]
 matrix_shape = rf.shape[1:]
 img_shape = (cfg['nz'], cfg['nx'])
 mac = utils.parameters_macros(cfg, utils.FLOAT_LIST + ['bfd'], utils.INT_LIST + ['n_angles'])
-with open('pwi_kernels_montaldo.cl') as f:
+with open('../Beamforming/OpenCL/pwi_kernels_montaldo.cl') as f:
     code = f.read()
-filt_code_path = r'filtro_fir_conv_transient.cl'
+filt_code_path = r'../Beamforming/OpenCL/filtro_fir_conv_transient.cl'
 with open(filt_code_path) as f:
     code += f.read()
 

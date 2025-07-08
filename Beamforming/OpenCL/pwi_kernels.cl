@@ -33,7 +33,8 @@ __kernel void pwi(__global short *matrix,
             ap_dyn = fabs(x_rx - xf)/zf < BFD ;
             t = t1 + t2 - T_START;
             t = t * step(0, t);  /* First sample must be 0 !!! */
-            k =  fmin(floor(t*FS) , N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */
+            //k =  fmin(floor(t*FS) , N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */
+            k = min((int)floor(t * FS), N_SAMPLES - 2);
             dt = t*FS - k ;
             k0 = i*N_ELEMENTOS*N_SAMPLES + e*N_SAMPLES ;
 
@@ -57,7 +58,7 @@ __kernel void pwi(__global short *matrix,
         }
 
         barrier(CLK_GLOBAL_MEM_FENCE) ;
-        img[iz*NX + ix] = q/N ;
+        img[iz*NX + ix] = q ;
 
         barrier(CLK_GLOBAL_MEM_FENCE) ;
         img_imag[iz*NX + ix] = q_imag/N ;

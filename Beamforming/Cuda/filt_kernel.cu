@@ -62,7 +62,6 @@ __global__ void filt_kernel_2(const short *datain, const float *coef_g, short *d
     dataout[i] = 0 ;
     dataout[i + N_SAMPLES - 2] = 0 ;
     dataout[i + N_SAMPLES - 1] = 0 ;
-
 }
 
 }

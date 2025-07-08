@@ -52,10 +52,9 @@ ax2[2].imshow(np.sqrt(bf[0, :, :]**2 + bf[1, :, :]**2))
 
 img_shape = (cfg['nz'], cfg['nx'])
 mac = utils.parameters_macros(cfg, utils.FLOAT_LIST + ['bfd'], utils.INT_LIST + ['n_angles'])
-with open('pwi_kernels.cl') as f:
+with open(r'../Beamforming/OpenCL/pwi_kernels_montaldo.cl') as f:
     code = f.read()
-filt_code_path = r'filtro_fir_conv_transient.cl'
-with open(filt_code_path) as f:
+with open(r'../Beamforming/OpenCL/filtro_fir_conv_transient.cl') as f:
     code += f.read()
 
 ctx, queue, mf = utils.init_gpu()

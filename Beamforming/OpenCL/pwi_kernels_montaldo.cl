@@ -35,7 +35,7 @@ __kernel void pwi_0(__global short *matrix,
             ap_dyn = fabs(x_rx - xf)/zf < BFD ;
             t = t1 + t2;
             t = t * step(0, t);  /* First sample must be 0 !!! */
-            k =  fmin(floor(t*FS) , N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */
+            k = min(floorf(t * FS), (float)(N_SAMPLES - 2)); /* resto 2 para evitar que k+1 = N_SAMPLES */
             dt = t*FS - k ;
             k0 = i*N_ELEMENTOS*N_SAMPLES + e*N_SAMPLES ;
 
@@ -102,7 +102,7 @@ __kernel void pwi_1(__global short *matrix,
             ap_dyn = fabs(x_rx - xf)/zf < BFD ;
             t = t1 + t2;
             t = t * step(0, t);  /* First sample must be 0 !!! */
-            k =  fmin(floor(t*FS) , N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */
+            k = min(floorf(t * FS), (float)(N_SAMPLES - 2)); /* resto 2 para evitar que k+1 = N_SAMPLES */
             dt = t*FS - k ;
             k0 = i*N_ELEMENTOS*N_SAMPLES + e*N_SAMPLES ;
 
