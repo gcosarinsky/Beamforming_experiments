@@ -30,7 +30,7 @@ __kernel void pwi(__global short *matrix,
         for (ushort e=0; e < N_ELEMENTOS; e++) {
             x_rx = e*PITCH - X_0;
             t2 = hypot(x_rx - xf, zf)/C1 ;
-            ap_dyn = fabs(x_rx - xf)/zf < BFD ;
+            ap_dyn = zf/(fabs(x_rx - xf) + FLT_EPSILON) > BFD ;
             t = t1 + t2 - T_START;
             t = t * step(0, t);  /* First sample must be 0 !!! */
             //k =  fmin(floor(t*FS) , N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */

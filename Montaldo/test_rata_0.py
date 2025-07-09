@@ -33,7 +33,7 @@ for k in hf.param_names.keys():
 
 # cfg['t_start'] = p['Rt0'][0][0]
 cfg['x_0'] = cfg['pitch'] * (cfg['n_elementos'] - 1) / 2
-cfg['taps'] = 63
+cfg['taps'] = 62
 cfg['bfd'] = 1
 cfg['x0_roi'] = -cfg['x_0']
 cfg['z0_roi'] = 4

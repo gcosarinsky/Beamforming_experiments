@@ -32,10 +32,10 @@ __kernel void pwi_0(__global short *matrix,
         for (ushort e=0; e < N_ELEMENTOS; e++) {
             x_rx = e*PITCH - X_0;
             t2 = hypot(x_rx - xf, zf)/C1 ;
-            ap_dyn = fabs(x_rx - xf)/zf < BFD ;
+            ap_dyn = zf/(fabs(x_rx - xf) + FLT_EPSILON) > BFD ;
             t = t1 + t2;
             t = t * step(0, t);  /* First sample must be 0 !!! */
-            k = min(floorf(t * FS), (float)(N_SAMPLES - 2)); /* resto 2 para evitar que k+1 = N_SAMPLES */
+            k = fmin(floor(t * FS), (float)(N_SAMPLES - 2)); /* resto 2 para evitar que k+1 = N_SAMPLES */
             dt = t*FS - k ;
             k0 = i*N_ELEMENTOS*N_SAMPLES + e*N_SAMPLES ;
 
@@ -99,10 +99,10 @@ __kernel void pwi_1(__global short *matrix,
         for (ushort e=0; e < N_ELEMENTOS; e++) {
             x_rx = e*PITCH - X_0;
             t2 = hypot(x_rx - xf, zf)/C1 ;
-            ap_dyn = fabs(x_rx - xf)/zf < BFD ;
+            ap_dyn = zf/(fabs(x_rx - xf) + FLT_EPSILON) > BFD ;
             t = t1 + t2;
             t = t * step(0, t);  /* First sample must be 0 !!! */
-            k = min(floorf(t * FS), (float)(N_SAMPLES - 2)); /* resto 2 para evitar que k+1 = N_SAMPLES */
+            k = fmin(floor(t * FS), (float)(N_SAMPLES - 2)); /* resto 2 para evitar que k+1 = N_SAMPLES */
             dt = t*FS - k ;
             k0 = i*N_ELEMENTOS*N_SAMPLES + e*N_SAMPLES ;
 

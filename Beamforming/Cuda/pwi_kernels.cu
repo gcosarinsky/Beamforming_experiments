@@ -19,7 +19,6 @@ __global__ void pwi(const short *matrix,
     float t1, t2;
     float t, dt, temp, theta, ap_dyn;
     unsigned int k, k0;
-    unsigned int N = N_ELEMENTOS * N_ANGLES;
     float a, b, q = 0, q_imag = 0, w = 0, w_imag = 0;
 
     for (unsigned short i = 0; i < N_ANGLES; i++) {
@@ -52,9 +51,9 @@ __global__ void pwi(const short *matrix,
             w_imag += b / temp;
         }
 
-        img[f_idx] = q;
-        img_imag[f_idx] = q_imag / N;
-        cohe[f_idx] = hypotf(w, w_imag) / N;
+        img[f_idx] = q ;
+        img_imag[f_idx] = q_imag ;
+        cohe[f_idx] = hypotf(w, w_imag) ;
     }
 }
 
