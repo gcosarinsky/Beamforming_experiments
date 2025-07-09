@@ -34,7 +34,7 @@ def test_kernel_params():
         int_params = kp.get_int_array()
 
         # Cargar código del kernel
-        with open('..\\bf_params.cu', 'r') as f:
+        with open('../pwi_with_params_struct/bf_params.cu', 'r') as f:
             kernel_code = f.read()
 
         # Agregar kernel de prueba al código

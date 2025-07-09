@@ -12,17 +12,19 @@ typedef struct {
     float z0_roi;    // Origen ROI en z
     float t_start;   // Tiempo inicial
     float x_0;       // Centro del array
-    // Parámetros int (como float)
-    float taps;      // Taps del filtro
-    float n_elementos; // Número de elementos
-    float n_angles;  // Número de ángulos
-    float nx;        // Puntos en x
-    float nz;        // Puntos en z
-    float n_samples; // Número de muestras
-} kernel_params_t;
 
-__device__ kernel_params_t build_params(const float *float_params, const int *int_params) {
-    kernel_params_t params;
+    // Parámetros int (como float)
+    int taps;      // Taps del filtro
+    int n_elementos; // Número de elementos
+    int n_angles;  // Número de ángulos
+    int nx;        // Puntos en x
+    int nz;        // Puntos en z
+    int n_samples; // Número de muestras
+} kernel_params;
+
+
+__device__ kernel_params build_params(const float *float_params, const int *int_params) {
+    kernel_params params;
     
     // Copiar parámetros float
     params.fs = float_params[0];
@@ -39,12 +41,12 @@ __device__ kernel_params_t build_params(const float *float_params, const int *in
     params.x_0 = float_params[11];
     
     // Copiar parámetros int como float
-    params.taps = (float)int_params[0];
-    params.n_elementos = (float)int_params[1];
-    params.n_angles = (float)int_params[2];
-    params.nx = (float)int_params[3];
-    params.nz = (float)int_params[4];
-    params.n_samples = (float)int_params[5];
+    params.taps = int_params[0];
+    params.n_elementos = int_params[1];
+    params.n_angles = int_params[2];
+    params.nx = int_params[3];
+    params.nz = int_params[4];
+    params.n_samples = int_params[5];
     
     return params;
 }

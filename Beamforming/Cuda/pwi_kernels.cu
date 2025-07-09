@@ -1,11 +1,9 @@
-extern "C" {
-
-__global__ void pwi(const short *matrix,
-                      const short *matrix_imag,
-                      float *img,
-                      float *img_imag,
-                      float *cohe,
-                      const float *angles) {
+extern "C" __global__ void pwi(const short *matrix,
+                               const short *matrix_imag,
+                               float *img,
+                               float *img_imag,
+                               float *cohe,
+                               const float *angles) {
 
     unsigned short iz = blockIdx.x * blockDim.x + threadIdx.x;
     unsigned short ix = blockIdx.y * blockDim.y + threadIdx.y;
@@ -57,4 +55,3 @@ __global__ void pwi(const short *matrix,
     }
 }
 
-}
