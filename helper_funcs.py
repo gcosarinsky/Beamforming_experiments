@@ -35,7 +35,8 @@ def convert_to_dict(arr):
 
 
 class KernelParameters:
-    # Definir listas de nombres para cada tipo de parámetro
+    # Definir listas de nombres para cada tipo de parámetro. Esto debe coincidir con los enum
+    # definidos en el kernel CUDA.
     float_names = ['fs', 'c1', 'pitch', 'f1', 'f2', 'bfd', 'x_step', 'z_step',
                    'x0_roi', 'z0_roi', 't_start', 'x_0']
     int_names = ['taps', 'n_elementos', 'n_angles', 'nx', 'nz', 'n_samples']

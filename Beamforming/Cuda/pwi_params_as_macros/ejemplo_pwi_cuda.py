@@ -21,7 +21,7 @@ def return_pw_cuda_beamformer(cfg):
     hilb_coef = cp.asarray(hilb.coef, dtype=cp.float32)
 
     # Cargar código CUDA
-    codepath = r'C:\Users\ggc\PROYECTOS\Beamforming_experiments\Beamforming\Cuda\\'
+    codepath = r'C:\Users\ggc\PROYECTOS\Beamforming_experiments\Beamforming\Cuda\pwi_params_as_macros\\'
     with open(codepath + r'filt_kernel.cu', encoding='utf-8') as \
             f1, open(codepath + r'pwi_kernels.cu', encoding='utf-8') as f2:
         code = f1.read() + '\n' + f2.read()
@@ -103,14 +103,14 @@ def measure_time(beamformer, cfg, n, repeat_data=False):
 
 if __name__ == '__main__':
     # Cargar adquisición
-    data_path = r'C:\Users\ggc\PROYECTOS\Beamforming_experiments\MUST/matlab/pruebas/pwi_acq_25angles.mat'
+    data_path = r'C:\Users\ggc\PROYECTOS\Beamforming_experiments/MUST/matlab/pruebas/pwi_acq_25angles.mat'
     data = loadmat(data_path)
     matrix = np.ascontiguousarray(data['a'].T, dtype=np.int16)
     angles = data['angles']
 
     #matrix[1:, ...] = 0
-    matrix[0:12, ...] = 0
-    matrix[13:, ...] = 0
+    # matrix[0:12, ...] = 0
+    # matrix[13:, ...] = 0
 
     cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2., 'f2': 8.,
            'taps': 62, 'bfd': 10, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 224,

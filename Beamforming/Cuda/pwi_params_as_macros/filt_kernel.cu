@@ -9,9 +9,9 @@ __device__ float multisum(short *x, float *coef) {
     float q = 0;
     for (int j = 0; j < (TAPS + 1); j++) {
         q += coef[TAPS - j] * x[j];
-        // Limitar el valor acumulado dentro del rango de un short
-        q = fmaxf(fminf(q, 32767.0f), -32768.0f);
     }
+    // Limitar el valor acumulado dentro del rango de un short
+    q = fmaxf(fminf(q, 32767.0f), -32768.0f);
     return q;
 }
 
