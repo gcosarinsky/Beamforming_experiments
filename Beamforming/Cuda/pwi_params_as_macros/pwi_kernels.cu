@@ -28,7 +28,7 @@ extern "C" __global__ void pwi(const short *matrix,
         for (unsigned short e = 0; e < N_ELEMENTOS; e++) {
             x_rx = e * PITCH - X_0;
             t2 = hypotf(x_rx - xf, zf) / C1;
-            ap_dyn = fabsf(x_rx - xf) / zf < BFD;
+            ap_dyn = zf/(fabs(x_rx - xf) + FLT_EPSILON) > BFD ;
             t = t1 + t2 - T_START;
             t = t * (t > 0 ? 1 : 0);  /* First sample must be 0 !!! */
             k = min((unsigned int)floorf(t * FS), N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */

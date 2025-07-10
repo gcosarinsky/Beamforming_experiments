@@ -29,9 +29,9 @@ def return_pw_cuda_beamformer(cfg):
     with open(codepath + r'pwi_kernels.cu', encoding='utf-8') as f:
         code = f.read()
 
-    module = cp.RawModule(code=code)
+    module = cp.RawModule(code=code, options=('--use_fast_math',))
     filt_kernel = module.get_function('filt_kernel')
-    pwi_kernel = module.get_function('pwi')
+    pwi_kernel = module.get_function('pwi_1pix_per_thread')
 
     def beamformer(matrix):
         """
@@ -103,7 +103,7 @@ if __name__ == '__main__':
     angles = data['angles']
 
     cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2., 'f2': 8.,
-           'taps': 62, 'bfd': 10, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 224,
+           'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 224,
            'n_samples': matrix.shape[-1], 'angles': angles.flatten(), 't_start': 0.}
     cfg['x_0'] = cfg['pitch'] * (cfg['n_elementos'] - 1) / 2
     cfg['matrix_shape'] = (cfg['n_angles'], cfg['n_elementos'], cfg['n_samples'])
