@@ -61,8 +61,8 @@ def return_pw_cuda_beamformer(cfg):
         # a = matrix_filt_gpu.get()
 
         # Aplicar beamforming
-        grid_size_img = (cfg['nz']//32, cfg['nx']//32)
-        pwi(grid_size_img, (32, 32), (matrix_filt_gpu, matrix_imag_gpu, img_gpu, img_imag_gpu, cohe_gpu,
+        grid_size_img = (cfg['nz']//4, cfg['nx']//256)
+        pwi(grid_size_img, (4, 256), (matrix_filt_gpu, matrix_imag_gpu, img_gpu, img_imag_gpu, cohe_gpu,
                                     cp.asarray(cfg['angles'], dtype=cp.float32)))
 
         # Copiar resultados de la GPU a la CPU
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     # matrix[13:, ...] = 0
 
     cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2., 'f2': 8.,
-           'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 224,
+           'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 256, 'nz': 224,
            'n_samples': matrix.shape[-1], 'angles': angles.flatten(), 't_start': 0.}
     cfg['x_0'] = cfg['pitch'] * (cfg['n_elementos'] - 1) / 2
     cfg['matrix_shape'] = (cfg['n_angles'], cfg['n_elementos'], cfg['n_samples'])

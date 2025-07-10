@@ -153,12 +153,13 @@ extern "C" __global__ void pwi_1pix_per_thread(
     float x_rx = -x0, wave_source;
     float t1, t2;
     float t, dt, temp, theta, ap_dyn;
-    unsigned int k, k0 = 0, k00 = 0;
+    unsigned int k, k0 = 0;
     float a, b, q = 0, q_imag = 0, w = 0, w_imag = 0;
 
     unsigned short f_idx = iz * nx + ix;
 
     for (unsigned short e = 0; e < nel; e++) {
+        k0 = e * ns;  // Índice base para el A-scan
         x_rx += pitch;  // Incrementar x_rx para cada elemento
         t2 = hypotf(x_rx - xf, zf) / c1;
         ap_dyn = zf/(fabsf(x_rx - xf) + FLT_EPSILON) > bfd ;  // Apodización dinámica
@@ -184,13 +185,12 @@ extern "C" __global__ void pwi_1pix_per_thread(
             w += a / temp;
             w_imag += b / temp;
 
-            k0 += ns * nel;
+            k0 += ns * nel; // saltar a la siguiente onda
         }
-
-        img[f_idx] = q ;
-        img_imag[f_idx] = q_imag ;
-        cohe[f_idx] = hypotf(w, w_imag) ;
     }
+    img[f_idx] = q ;
+    img_imag[f_idx] = q_imag ;
+    cohe[f_idx] = hypotf(w, w_imag) ;
 }
 
 

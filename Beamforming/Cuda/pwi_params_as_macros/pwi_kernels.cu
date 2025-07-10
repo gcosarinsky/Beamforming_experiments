@@ -16,7 +16,7 @@ extern "C" __global__ void pwi(const short *matrix,
     float x_rx, wave_source;
     float t1, t2;
     float t, dt, temp, theta, ap_dyn;
-    unsigned int k, k0;
+    unsigned int k, k0 = 0;
     float a, b, q = 0, q_imag = 0, w = 0, w_imag = 0;
 
     for (unsigned short i = 0; i < N_ANGLES; i++) {
@@ -33,7 +33,7 @@ extern "C" __global__ void pwi(const short *matrix,
             t = t * (t > 0 ? 1 : 0);  /* First sample must be 0 !!! */
             k = min((unsigned int)floorf(t * FS), N_SAMPLES - 2); /* resto 2 para evitar que k+1 = N_SAMPLES */
             dt = t * FS - k;
-            k0 = i * N_ELEMENTOS * N_SAMPLES + e * N_SAMPLES;
+            //k0 = i * N_ELEMENTOS * N_SAMPLES + e * N_SAMPLES;
 
             temp = (float)matrix[k0 + k];
             a = ((float)matrix[k0 + k + 1] - temp) * dt + temp;
@@ -47,6 +47,8 @@ extern "C" __global__ void pwi(const short *matrix,
             /* se suman las componentes de los fasores para cada A-scan */
             w += a / temp;
             w_imag += b / temp;
+
+            k0 += N_SAMPLES ; // saltar al siguiente ascan
         }
     }
     img[f_idx] = q ;

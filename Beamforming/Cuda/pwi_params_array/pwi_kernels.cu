@@ -152,7 +152,7 @@ extern "C" __global__ void pwi_1pix_per_thread(
     float x_rx, wave_source;
     float t1, t2;
     float t, dt, temp, theta, ap_dyn;
-    unsigned int k, k0 = 0, k00 = 0;
+    unsigned int k, k0 = 0;
     float a, b, q = 0, q_imag = 0, w = 0, w_imag = 0;
 
     unsigned short f_idx = iz * nx + ix;
@@ -162,14 +162,11 @@ extern "C" __global__ void pwi_1pix_per_thread(
         theta = angles[i];
         wave_source = x0 * (theta < 0 ? 1 : -1);
         t1 = ((xf - wave_source) * sinf(theta) + zf * cosf(theta)) / c1 - t_start;
-        k00 += nel * ns;  // Índice base para el A-scan
-        k0 = k00;  // Reiniciar k0 para cada ángulo
         x_rx = -x0;  // Inicializar x_rx para el primer elemento
         for (unsigned short e = 0; e < nel; e++) {
             x_rx += pitch;  // Incrementar x_rx para cada elemento
             compute_sample_index(&x_rx, &xf, &zf, &c1, &bfd, &fs, &ns, &t1, &t2, &t, &k, &ap_dyn);
             dt = t * fs - k;
-            k0 += ns;
 
             temp = (float)matrix[k0 + k];
             a = ((float)matrix[k0 + k + 1] - temp) * dt + temp;
@@ -183,7 +180,10 @@ extern "C" __global__ void pwi_1pix_per_thread(
             /* se suman las componentes de los fasores para cada A-scan */
             w += a / temp;
             w_imag += b / temp;
+
+            k0 += ns;
         }
+
     }
 
     img[f_idx] = q ;
@@ -233,7 +233,7 @@ extern "C" __global__ void pwi_4pix_per_thread(
     float x_rx, wave_source;
     float t1, t2, t1_x, t_z_step;
     float t, dt, temp, theta, ap_dyn, cos_theta, sin_theta;
-    unsigned int k, k0 = 0, k00 = 0;
+    unsigned int k, k0 = 0;
     float a, b, q[4] = {0}, q_imag[4] = {0} ;
 
     unsigned short f_idx = ix * nz + 4*iz;
@@ -245,12 +245,9 @@ extern "C" __global__ void pwi_4pix_per_thread(
         sin_theta = sinf(theta);
         wave_source = x0 * (theta < 0 ? 1 : -1);
         t1_x = (xf - wave_source) * sin_theta / c1 - t_start ;
-        k00 += nel * ns;  // Índice base para el A-scan
-        k0 = k00;  // Reiniciar k0 para cada ángulo
         x_rx = -x0;  // Inicializar x_rx para el primer elemento
-
         for (unsigned short e = 0; e < nel; e++) {
-            k0 += ns;
+
             x_rx += pitch;  // Incrementar x_rx para cada elemento
             t_z_step = z_step * cos_theta / c1 ; ;
             zf = z0_roi + 4 * z_step * iz;  // Z POSITIVE DOWNWARDS
@@ -269,6 +266,7 @@ extern "C" __global__ void pwi_4pix_per_thread(
                 b = ((float)matrix_imag[k0 + k + 1] - temp) * dt + temp;
                 q_imag[j] += b * ap_dyn;
             }
+            k0 += ns;
         }
     }
     memcpy(&img[f_idx], q, 4 * sizeof(float));
