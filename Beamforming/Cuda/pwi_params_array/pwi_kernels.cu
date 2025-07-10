@@ -50,7 +50,6 @@ __device__ void compute_sample_index(float *x_rx, float *xf, float *zf, float *c
                                      float *fs, int *ns, float *t1, float *t2, float *t,
                                      unsigned int *k, float *ap_dyn) {
     *t2 = hypotf(*x_rx - *xf, *zf) / *c1;
-    *ap_dyn = fabsf(*x_rx - *xf) / *zf < *bfd;
     *ap_dyn = *zf/(fabsf(*x_rx - *xf) + FLT_EPSILON) > *bfd ;  // Apodización dinámica
     *t = *t1 + *t2;
     *t = *t * (*t > 0 ? 1 : 0);  /* First sample must be 0 !!! */
@@ -185,11 +184,11 @@ extern "C" __global__ void pwi_1pix_per_thread(
             w += a / temp;
             w_imag += b / temp;
         }
-
-        img[f_idx] = q ;
-        img_imag[f_idx] = q_imag ;
-        cohe[f_idx] = hypotf(w, w_imag) ;
     }
+
+    img[f_idx] = q ;
+    img_imag[f_idx] = q_imag ;
+    cohe[f_idx] = hypotf(w, w_imag) ;
 }
 
 
@@ -271,11 +270,9 @@ extern "C" __global__ void pwi_4pix_per_thread(
                 q_imag[j] += b * ap_dyn;
             }
         }
-
-        memcpy(&img[f_idx], q, 4 * sizeof(float));
-        memcpy(&img_imag[f_idx], q_imag, 4 * sizeof(float));
-
     }
+    memcpy(&img[f_idx], q, 4 * sizeof(float));
+    memcpy(&img_imag[f_idx], q_imag, 4 * sizeof(float));
 }
 
 

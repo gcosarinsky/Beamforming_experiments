@@ -33,16 +33,17 @@ def return_pw_cuda_beamformer(cfg):
     filt_kernel = module.get_function('filt_kernel')
     pwi_kernel = module.get_function('pwi_1pix_per_thread')
 
+    matrix_filt_gpu = cp.zeros((cfg['n_angles'], cfg['n_elementos'], cfg['n_samples']), dtype=cp.int16)
+    matrix_imag_gpu = cp.zeros_like(matrix_filt_gpu)
+    img_gpu = cp.zeros((cfg['nz'], cfg['nx']), dtype=cp.float32)
+    img_imag_gpu = cp.zeros_like(img_gpu)
+    cohe_gpu = cp.zeros_like(img_gpu)
+
     def beamformer(matrix):
         """
         Aplica el beamformer a los datos de entrada.
         """
         matrix_gpu = cp.asarray(matrix, dtype=cp.int16)
-        matrix_filt_gpu = cp.zeros_like(matrix_gpu)
-        matrix_imag_gpu = cp.zeros_like(matrix_gpu)
-        img_gpu = cp.zeros((cfg['nz'], cfg['nx']), dtype=cp.float32)
-        img_imag_gpu = cp.zeros_like(img_gpu)
-        cohe_gpu = cp.zeros_like(img_gpu)
 
         # Aplicar filtro FIR
         nblock = 128

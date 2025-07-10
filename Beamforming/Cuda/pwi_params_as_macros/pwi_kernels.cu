@@ -48,10 +48,9 @@ extern "C" __global__ void pwi(const short *matrix,
             w += a / temp;
             w_imag += b / temp;
         }
-
-        img[f_idx] = q ;
-        img_imag[f_idx] = q_imag ;
-        cohe[f_idx] = hypotf(w, w_imag) ;
     }
+    img[f_idx] = q ;
+    img_imag[f_idx] = q_imag ;
+    cohe[f_idx] = hypotf(w, w_imag) ;
 }
 
