@@ -1,0 +1,2 @@
+11/7/2025
+el código está incompleto, porque me pareción que lo de crear un struct en el kernel podía ser muy ineficiente

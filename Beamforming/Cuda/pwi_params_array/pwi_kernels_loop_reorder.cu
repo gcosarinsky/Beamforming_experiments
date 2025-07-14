@@ -113,7 +113,7 @@ extern "C" __global__ void filt_kernel(const int *int_params, const short *datai
     dataout[i + ns - 1] = 0 ;
 }
 
-
+// cambiar el orden del loop, INCOMPLETO!!!
 extern "C" __global__ void pwi_1pix_per_thread(
                                const int *int_params,
                                const float *float_params,
@@ -192,91 +192,3 @@ extern "C" __global__ void pwi_1pix_per_thread(
     img_imag[f_idx] = q_imag ;
     cohe[f_idx] = hypotf(w, w_imag) ;
 }
-
-
-
-// sin coherencia de fase!!!!!!!!!
-extern "C" __global__ void pwi_4pix_per_thread(
-                               const int *int_params,
-                               const float *float_params,
-                               const float *angles,
-                               const short *matrix,
-                               const short *matrix_imag,
-                               float *img,
-                               float *img_imag) {
-
-    unsigned short ix = blockIdx.x * blockDim.x + threadIdx.x;
-    unsigned short iz = blockIdx.y * blockDim.y + threadIdx.y;
-
-    // Obtener los parámetros enteros y flotantes
-    // int_params
-    int nel = int_params[N_ELEMENTOS];
-    int nang = int_params[N_ANGLES];
-    int ns = int_params[N_SAMPLES];
-    int nx = int_params[NX];
-    int nz = int_params[NZ];
-
-    //if (iz >= nz || ix >= nx) return;  // Verificar límites de los índices
-
-    // float params
-    float fs = float_params[FS];
-    float c1 = float_params[C1];
-    float pitch = float_params[PITCH];
-    float x0_roi = float_params[X0_ROI];
-    float z0_roi = float_params[Z0_ROI];
-    float x_step = float_params[X_STEP];
-    float z_step = float_params[Z_STEP];
-    float t_start = float_params[T_START];
-    float x0 = float_params[X_0];
-    float bfd = float_params[BFD];
-
-    float xf = x0_roi + x_step * ix;
-    float zf ;
-    float x_rx, wave_source;
-    float t1, t2, t1_x, t_z_step;
-    float t, dt, temp, theta, ap_dyn, cos_theta, sin_theta;
-    unsigned int k, k0 = 0, k00 = 0;
-    float a, b, q[4] = {0}, q_imag[4] = {0} ;
-
-    unsigned short f_idx = ix * nz + 4*iz;
-
-    for (unsigned short i = 0; i < nang; i++) {
-
-        theta = angles[i];
-        cos_theta = cosf(theta);
-        sin_theta = sinf(theta);
-        wave_source = x0 * (theta < 0 ? 1 : -1);
-        t1_x = (xf - wave_source) * sin_theta / c1 - t_start ;
-        k00 += nel * ns;  // Índice base para el A-scan
-        k0 = k00;  // Reiniciar k0 para cada ángulo
-        x_rx = -x0;  // Inicializar x_rx para el primer elemento
-
-        for (unsigned short e = 0; e < nel; e++) {
-            k0 += ns;
-            x_rx += pitch;  // Incrementar x_rx para cada elemento
-            t_z_step = z_step * cos_theta / c1 ; ;
-            zf = z0_roi + 4 * z_step * iz;  // Z POSITIVE DOWNWARDS
-            t1 = t1_x + zf * cos_theta / c1;
-            for (int j = 0; j < 4; j++) {
-                zf += z_step;  // Mover al siguiente pixel en Z
-                t1 += t_z_step ;  // Ajustar t1 para el nuevo zf
-                compute_sample_index(&x_rx, &xf, &zf, &c1, &bfd, &fs, &ns, &t1, &t2, &t, &k, &ap_dyn);
-                dt = t * fs - k;
-
-                temp = (float)matrix[k0 + k];
-                a = ((float)matrix[k0 + k + 1] - temp) * dt + temp;
-                q[j] += a * ap_dyn;
-
-                temp = (float)matrix_imag[k0 + k];
-                b = ((float)matrix_imag[k0 + k + 1] - temp) * dt + temp;
-                q_imag[j] += b * ap_dyn;
-            }
-        }
-
-        memcpy(&img[f_idx], q, 4 * sizeof(float));
-        memcpy(&img_imag[f_idx], q_imag, 4 * sizeof(float));
-
-    }
-}
-
-
