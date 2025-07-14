@@ -68,3 +68,14 @@ class KernelParameters:
         """Devuelve array ordenado de parámetros int"""
         return np.array([getattr(self, name) for name in self.int_names],
                         dtype=np.int32)
+
+    def generate_macros(self):
+        """Genera macros para pasar los parámetros al kernel si se usa el método de pasar parámetros como macros"""
+        macros = []
+        for name in self.int_names:
+            value = getattr(self, name)
+            macros.append(f'#define {name.upper()} {value}')
+        for name in self.float_names:
+            value = getattr(self, name)
+            macros.append(f'#define {name.upper()} {value:.6f}f')
+        return '\n'.join(macros)
