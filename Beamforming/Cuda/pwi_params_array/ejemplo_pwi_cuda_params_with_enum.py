@@ -106,7 +106,7 @@ if __name__ == '__main__':
     angles = data['angles']
 
     cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_batch': 0, 'n_ch': 128, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2., 'f2': 8.,
-           'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 224,
+           'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 256,
            'n_samples': matrix.shape[-1], 'angles': angles.flatten(), 't_start': 0.}
     cfg['x_0'] = cfg['pitch'] * (cfg['n_elementos'] - 1) / 2
     cfg['matrix_shape'] = (cfg['n_angles'], cfg['n_elementos'], cfg['n_samples'])
@@ -115,6 +115,8 @@ if __name__ == '__main__':
     img, img_imag, cohe = bffun(matrix)
     img_abs = np.abs(img + 1j * img_imag)
 
-    fig, ax = plt.subplots()
-    ax.imshow(img_abs)
+    fig, ax = plt.subplots(1, 3, figsize=(15, 5))
+    ax[0].imshow(img_abs)
+    ax[1].imshow(img)
+    ax[2].imshow(img_imag)
     plt.show()

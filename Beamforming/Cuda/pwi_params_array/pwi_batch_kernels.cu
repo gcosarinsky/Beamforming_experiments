@@ -33,6 +33,9 @@ extern "C" __global__ void filt_batch_kernel(const int *int_params, const short 
 
         // Calcular transitorio
         for (unsigned short l = 0; l <= l0; l++) {
+            // NOTA: segun lo que haya en x, puede habr un problemita en el transitorio, porque la
+            // primera mitad de x debería tener valore nulos, y puede que no sea así. Se podría inicilizar
+            // para evitar esto
             x[l + l0] = datain[i + l];
         }
 
@@ -101,15 +104,21 @@ extern "C" __global__ void pwi_batch_1pix_per_thread(
     float a, b; // para amacenar las samples localmente
 
     // variables para indexar
-    unsigned int m_idx, k, k0 = 0, batch_offset; // para indexar las matrix
+    unsigned int k, k0 = 0;
+    unsigned int m_idx, batch_offset; // para indexar las matrix
     unsigned int batch_stride = ns * nel * nang, img_stride = nx * nz ;
-    unsigned short local_offset = (threadIdx.y * blockDim.x + threadIdx.x) * n_batch * 2; // Para indexar la memoria compartida
-    unsigned short q_idx ; // valor inicial para indexar la memoria compartida
+    unsigned int tid = threadIdx.y * blockDim.x + threadIdx.x; // Para indexar la memoria compartida
+    unsigned int q_stride = blockDim.x * blockDim.y; // stride para indexar la memoria compartida
+    unsigned int q_idx ; // valor inicial para indexar la memoria compartida
 
-    unsigned short f_idx = iz * nx + ix; // para indexar la imagen
+    unsigned int f_idx = iz * nx + ix; // para indexar la imagen
 
     extern __shared__ float q[]; // Variable compartida para almacenar resultados parciales, el tamaño
     // es (nro de pixeles por block) * n_batch * 2 (real e imaginaria)
+    for (unsigned int i = 0; i < n_batch * 2; i++) {
+        q[tid + i * q_stride] = 0.0f;  // Inicializar memoria compartida
+    }
+    __syncthreads();
 
     for (unsigned short i = 0; i < nang; i++) {
         theta = angles[i];
@@ -123,33 +132,35 @@ extern "C" __global__ void pwi_batch_1pix_per_thread(
             dt = t * fs - k;
 
             batch_offset = 0 ;
-            q_idx = local_offset ;
+            q_idx = tid ;
             for (unsigned short bch = 0; bch < n_batch; bch++) {
                 m_idx = batch_offset + k0 + k;
                 temp = (float)matrix[m_idx];
                 a = ((float)matrix[m_idx + 1] - temp) * dt + temp;
-                q[q_idx] += a * ap_dyn;
                 __syncthreads();
+                q[q_idx] += a * ap_dyn;
 
                 temp = (float)matrix_imag[m_idx];
                 b = ((float)matrix_imag[m_idx + 1] - temp) * dt + temp;
-                q[n_batch + q_idx] += b * ap_dyn;
+                q_idx += q_stride; // Incrementar el índice para la memoria compartida
                 __syncthreads();
-
+                q[q_idx] += b * ap_dyn;
                 batch_offset += batch_stride ;
-                q_idx += 1; // Incrementar el índice para la memoria compartida
+                q_idx += q_stride; // Incrementar el índice para la memoria compartida
             }
             k0 += ns;
         }
     }
 
-    q_idx = local_offset; // Reiniciar el índice para la memoria compartida
+    q_idx = tid; // Reiniciar el índice para la memoria compartida
     for (unsigned short bch = 0; bch < n_batch; bch++) {
+         __syncthreads();
         img[f_idx] = q[q_idx] ;
         __syncthreads();
-        img_imag[f_idx] = q[q_idx + n_batch]; ;
+        q_idx += q_stride; // Incrementar el índice para la memoria compartida
         __syncthreads();
+        img_imag[f_idx] = q[q_idx];
         f_idx += img_stride; // Incrementar el índice para la imagen
-        q_idx += 1; // Incrementar el índice para la memoria compartida
+        q_idx += q_stride; // Incrementar el índice para la memoria compartida
         }
 }
