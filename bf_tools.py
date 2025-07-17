@@ -39,9 +39,15 @@ class KernelParameters:
     # definidos en el kernel CUDA.
     float_names = ['fs', 'c1', 'pitch', 'f1', 'f2', 'bfd', 'x_step', 'z_step',
                    'x0_roi', 'z0_roi', 't_start', 'x_0']
-    int_names = ['taps', 'n_elementos', 'n_angles', 'nx', 'nz', 'n_samples']
+    int_names = ['taps', 'n_batch', 'n_elementos', 'n_ch', 'n_angles', 'nx', 'nz', 'n_samples']
 
     def __init__(self, params_dict):
+
+        print('---------------- MUY IMPORTANTE --------------------------------------------------------------'
+              '\nAsegurarse de que las definiciones enum FloatParams y IntParams en CUDA '
+              'coincidan con las de esta clase!!!.'
+              '\n-----------------------------------------------------------------------------------------------')
+
         # Verificar que todos los parámetros necesarios estén presentes
         missing_params = []
         for name in self.float_names + self.int_names:
@@ -78,4 +84,4 @@ class KernelParameters:
         for name in self.float_names:
             value = getattr(self, name)
             macros.append(f'#define {name.upper()} {value:.6f}f')
-        return '\n'.join(macros)
+        return '\n'.join(macros) + '\n'

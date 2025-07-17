@@ -7,8 +7,8 @@ from scipy import signal
 import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
-from helper_funcs import KernelParameters
-
+from bf_tools import KernelParameters
+import FIR_filter_tests.hilbert_coef as hilb
 
 def return_pw_cuda_beamformer(cfg):
     """
@@ -18,6 +18,7 @@ def return_pw_cuda_beamformer(cfg):
     bandpass_coef_cpu = signal.firwin(cfg['taps'] + 1, [2 * cfg['f1'] / cfg['fs'], 2 * cfg['f2'] / cfg['fs']],
                                       pass_zero=False)
     bandpass_coef = cp.asarray(bandpass_coef_cpu, dtype=cp.float32)
+    hilb_coef = cp.asarray(hilb.coef, dtype=cp.float32)
 
     # Crear objeto KernelParameters
     params = KernelParameters(cfg)
@@ -53,7 +54,7 @@ def return_pw_cuda_beamformer(cfg):
         filt_kernel(grid_size, block_size, (int_params, matrix_gpu, bandpass_coef, matrix_filt_gpu))
 
         # Aplicar transformada de Hilbert
-        filt_kernel(grid_size, block_size, (int_params, matrix_filt_gpu, bandpass_coef, matrix_imag_gpu))
+        filt_kernel(grid_size, block_size, (int_params, matrix_filt_gpu, hilb_coef, matrix_imag_gpu))
 
         # Aplicar beamforming
         grid_size_img = (cfg['nz'] // 32, cfg['nx'] // 32)
@@ -96,6 +97,7 @@ def measure_time(beamformer, cfg, n, repeat_data=False):
 
     return n / t
 
+
 if __name__ == '__main__':
     # Cargar adquisición
     data_path = r'C:\Users\ggc\PROYECTOS\Beamforming_experiments\MUST/matlab/pruebas/pwi_acq_25angles.mat'
@@ -103,7 +105,7 @@ if __name__ == '__main__':
     matrix = np.ascontiguousarray(data['a'].T, dtype=np.int16)
     angles = data['angles']
 
-    cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2., 'f2': 8.,
+    cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_batch': 0, 'n_ch': 128, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2., 'f2': 8.,
            'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20., 'z0_roi': 1., 'nx': 224, 'nz': 224,
            'n_samples': matrix.shape[-1], 'angles': angles.flatten(), 't_start': 0.}
     cfg['x_0'] = cfg['pitch'] * (cfg['n_elementos'] - 1) / 2
@@ -114,5 +116,5 @@ if __name__ == '__main__':
     img_abs = np.abs(img + 1j * img_imag)
 
     fig, ax = plt.subplots()
-    ax.imshow(np.abs(img))
+    ax.imshow(img_abs)
     plt.show()

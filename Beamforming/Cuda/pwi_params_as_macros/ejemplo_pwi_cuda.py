@@ -124,5 +124,5 @@ if __name__ == '__main__':
     img_abs = np.abs(img + 1j * img_imag)
 
     fig, ax = plt.subplots()
-    ax.imshow(np.abs(img))
+    ax.imshow(img_abs)
     plt.show()

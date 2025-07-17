@@ -7,6 +7,7 @@ import pyopencl as cl
 import utimag.utils as utils
 from scipy import signal
 import time
+import bf_tools as bft
 
 
 def return_pw_cl_beamformer(cfg):
@@ -17,7 +18,9 @@ def return_pw_cl_beamformer(cfg):
                                   pass_zero=False)  # .astype(np.float32)
 
     img_shape = (cfg['nz'], cfg['nx'])
-    mac = utils.parameters_macros(cfg, utils.FLOAT_LIST + ['bfd'], utils.INT_LIST + ['n_angles'])
+    kp = bft.KernelParameters(cfg)
+    mac = kp.generate_macros()
+    # mac = utils.parameters_macros(cfg, utils.FLOAT_LIST + ['bfd'], utils.INT_LIST + ['n_angles'])
     codepath = r'C:\Users\ggc\PROYECTOS\Beamforming_experiments\Beamforming\OpenCL\\'
     with open(codepath + r'pwi_kernels.cl', encoding='utf-8') as f:
         code = f.read()
@@ -98,10 +101,10 @@ if __name__ == '__main__':
 
     #dadadadad
     #matrix[1:, ...] = 0
-    matrix[0:12, ...] = 0
-    matrix[13:, ...] = 0
+    # matrix[0:12, ...] = 0
+    # matrix[13:, ...] = 0
 
-    cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2, 'f2': 8,
+    cfg = {'fs': 62.5, 'c1': 6.3, 'pitch': 0.5, 'n_ch': 128, 'n_elementos': 128, 'n_angles': angles.size, 'f1': 2, 'f2': 8,
            'taps': 62, 'bfd': 1, 'x_step': 0.2, 'z_step': 0.2, 'x0_roi': -20, 'z0_roi': 1, 'nx': 200, 'nz': 200,
            'n_samples': matrix.shape[-1], 'angles': angles, 't_start': 0}
     cfg['x_0'] = cfg['pitch'] * (cfg['n_elementos'] - 1) / 2

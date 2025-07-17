@@ -19,7 +19,9 @@ enum FloatParams {
 
 enum IntParams {
     TAPS,
+    N_BATCH,
     N_ELEMENTOS,
+    N_CH,
     N_ANGLES,
     NX,
     NZ,
@@ -190,8 +192,6 @@ extern "C" __global__ void pwi_1pix_per_thread(
     img_imag[f_idx] = q_imag ;
     cohe[f_idx] = hypotf(w, w_imag) ;
 }
-
-
 
 // sin coherencia de fase!!!!!!!!!
 extern "C" __global__ void pwi_4pix_per_thread(
